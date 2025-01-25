@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const RatingReview = require('../models/reviewSchema');
+const verifyToken = require('./auth');  
 
-router.get('/watched-hours/:id',async (req, res) =>
+router.get('/watched-hours/:id',verifyToken,async (req, res) =>
      {
     try
      {

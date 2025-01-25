@@ -3,8 +3,9 @@ const express = require('express');
 const router = express.Router();
 const Genre = require('../models/genreSchema');
 const Anime = require('../models/animeSchema');
+const verifyToken = require('./auth');  
 12.// Retrieve unique genres in user's collection
-router.get('/genres/uniquegenre',async (req, res) => 
+router.get('/uniquegenre',verifyToken,async (req, res) => 
     {
      try
        {
@@ -19,7 +20,7 @@ router.get('/genres/uniquegenre',async (req, res) =>
 });
 
 13.// Add a new genre
-router.post('/genres/:newgenre',async (req, res) =>
+router.post('/:newgenre',verifyToken,async (req, res) =>
      {
        try
         {
@@ -42,7 +43,7 @@ router.post('/genres/:newgenre',async (req, res) =>
 });
 
 14.// Rename a genre
-router.put('/genres/:id',async (req, res) =>
+router.put('/:id',verifyToken,async (req, res) =>
      {
        try
         {
@@ -63,7 +64,7 @@ router.put('/genres/:id',async (req, res) =>
 });
 
 15.// Delete a genre
-router.delete('/genres/:id',async (req, res) =>
+router.delete('/:id',verifyToken,async (req, res) =>
      {
        try
         {

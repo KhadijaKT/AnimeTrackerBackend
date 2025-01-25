@@ -3,8 +3,10 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/userSchema');
 const Anime = require('../models/animeSchema');
+const verifyToken = require('./auth');  
+
 18.// Add anime to favorites
-router.post('/fav/add', async (req, res) =>
+router.post('/',verifyToken, async (req, res) =>
      {
     try {
         const data = req.body;
@@ -21,7 +23,7 @@ router.post('/fav/add', async (req, res) =>
 
 
 19.// Retrieve favorites
-router.get('/fav/:id', async (req, res) =>
+router.get('/:id',verifyToken, async (req, res) =>
      {
        try 
        {
@@ -36,7 +38,7 @@ router.get('/fav/:id', async (req, res) =>
  });
 
 20.// Remove from favorites
-router.delete('/fav/remove/:id', async (req, res) => 
+router.delete('/:id',verifyToken, async (req, res) => 
     {
     try {
         const userid = req.body.id;

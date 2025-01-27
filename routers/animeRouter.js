@@ -1,23 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const Anime = require('./../models/Anime');
+const Anime = require('../models/animeSchema');
 const verifyToken = require('./auth');  
 
-// 3. GET /api/anime - Retrieve all anime tracked by the authenticated user.
-router.get('/', verifyToken, async (req, res) => {
+// 3. GET /api/anime - Retrieve all anime
+router.get('/', async (req, res) => {
     try {
-        const userId = req.user.id;  // The userId is added by the verifyToken middleware
-        const data = await Anime.find({ userId });
+        const data = await Anime.find(); // Fetch all anime without filtering by userId
         console.log('Anime data fetched');
         res.status(200).json(data);
     } catch (err) {
-        console.log(err);
+        console.error(err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
-// 4. GET /api/anime/:id - Retrieve details of a specific anime by its ID.
-router.get('/:id', verifyToken, async (req, res) => {
+// 4. GET /api/anime/:id - Retrieve details of a specific anime by its ID
+router.get('/:id', async (req, res) => {
     try {
         const animeId = req.params.id;
         const data = await Anime.findById(animeId);
@@ -27,22 +26,21 @@ router.get('/:id', verifyToken, async (req, res) => {
         console.log('Anime details fetched');
         res.status(200).json(data);
     } catch (err) {
-        console.log(err);
+        console.error(err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
-// 5. POST /api/anime - Add a new anime to the user's tracker.
-router.post('/', verifyToken, async (req, res) => {
+// 5. POST /api/anime - Add a new anime
+router.post('/', async (req, res) => {
     try {
-        const userId = req.user.id;  // The userId is added by the verifyToken middleware
-        const data = req.body;
-        const newAnime = new Anime({ ...data, userId });
+        const data = req.body; // Take anime details from request body
+        const newAnime = new Anime(data); // Create a new Anime document
         const response = await newAnime.save();
         console.log('Anime added');
         res.status(200).json(response);
     } catch (err) {
-        console.log(err);
+        console.error(err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
@@ -70,9 +68,9 @@ router.put('/:id', verifyToken, async (req, res) => {
 });
 
 // 7. PUT /api/anime/mark-completed - Update the status of all anime entries to "Completed."
-router.put('/mark-completed', verifyToken, async (req, res) => {
+router.put('/mark-completed/:id', verifyToken, async (req, res) => {
     try {
-        const userId = req.user.id;  // The userId is added by the verifyToken middleware
+        const userId = req.params.id;  // The userId is added by the verifyToken middleware
         const response = await Anime.updateMany(
             { userId, status: { $ne: 'Completed' } },
             { $set: { status: 'Completed' } }
@@ -129,23 +127,27 @@ router.get('/genre/:genre', verifyToken, async (req, res) => {
 });
 
 // 11. GET /api/anime/:status - Retrieve all anime for a specific status (e.g., "Watching," "Completed").
-router.get('/:status', verifyToken, async (req, res) => {
+router.get('/status/:status', verifyToken, async (req, res) => {
     try {
         const status = req.params.status;
         const validStatuses = ['Watching', 'Completed', 'Plan to Watch'];
 
+        // Validate the status parameter
         if (!validStatuses.includes(status)) {
-            return res.status(404).json({ error: 'Invalid Status' });
+            return res.status(400).json({ error: 'Invalid status. Valid statuses are Watching, Completed, or Plan to Watch.' });
         }
 
-        const data = await Anime.find({ status });
+        // Query the database for anime with the specified status
+        const data = await Anime.find({ status: status });
+
         console.log('Anime by status fetched');
         res.status(200).json(data);
     } catch (err) {
-        console.log(err);
+        console.error('Error fetching anime by status:', err);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
 
 // Export router
 module.exports = router;

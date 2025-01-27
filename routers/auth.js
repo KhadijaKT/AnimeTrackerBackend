@@ -6,7 +6,7 @@ const User=require('./../models/userSchema')
 
 const router=express.Router()
 
-const JWT_SECRET=''
+const JWT_SECRET='123_KEY'
 
 router.post('/register',async(req,res)=>{
     try{
@@ -41,7 +41,7 @@ router.post('/login',async(req,res)=>{
         const user=await User.findOne({email})
 
         if(!user){
-            return res.status(404).json({messgae:'User not found.'})
+            return res.status(404).json({message:'User not found.'})
         }
 
         const isPasswordValid=await bcrypt.compare(password,user.password)
@@ -53,7 +53,7 @@ router.post('/login',async(req,res)=>{
         const token=jwt.sign(
             {userId:user._id,email:user.email},
             JWT_SECRET,
-            {expireIn:'1h'}
+            {expiresIn:'1h'}
         )
         res.status(200).json({message:'Login Successful',
             token
